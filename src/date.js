@@ -10,8 +10,8 @@ Date.prototype.format = function (formatStr) {
     str = str.replace(/yyyy|YYYY/, this.getFullYear());
     str = str.replace(/yy|YY/, (this.getYear() % 100) > 9 ? (this.getYear() % 100).toString() : '0' + (this.getYear() % 100));
 
-    str = str.replace(/MM/, this.getMonth() > 9 ? (this.getMonth() + 1).toString() : '0' + (this.getMonth() + 1));
-    str = str.replace(/M/g, this.getMonth());
+    str = str.replace(/MM/, (this.getMonth() + 1) > 9 ? (this.getMonth() + 1).toString() : '0' + (this.getMonth() + 1));
+    str = str.replace(/M/g, this.getMonth() + 1);
 
     str = str.replace(/dd|DD/, this.getDate() > 9 ? this.getDate().toString() : '0' + this.getDate());
     str = str.replace(/d|D/g, this.getDate());
@@ -89,9 +89,12 @@ Date.prototype.humanize = function (maxUnit, formatStr) {
         '分钟': 60000,
         '秒': 1000
     };
-    let milliseconds = new Date() - this;
-    let maxMilliSeconds = UNITS[maxUnit] || 99999999999;
     formatStr = formatStr || 'yyyy-MM-dd';
+    let milliseconds = new Date() - this;
+    if (milliseconds < 0) {
+        return this.format(formatStr);
+    }
+    let maxMilliSeconds = UNITS[maxUnit] || 99999999999;
     let result = '';
     for (var key in UNITS) {
         if (milliseconds >= UNITS[key]) {
@@ -104,4 +107,12 @@ Date.prototype.humanize = function (maxUnit, formatStr) {
         }
     }
     return result || '刚刚';
+}
+
+/**
+ * 获取当前日期是周几
+ */
+Date.prototype.getWeek = function () {
+    let weeks = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+    return weeks[this.getDay()];
 }
